@@ -160,8 +160,10 @@ function imgur_activate() {
     $imgur_template[] = array(
         'title' => CN_ABPIMGUR . '_button',
         'template' => '<div style="margin:auto; width: 170px; margin-top: 20px;">
-		<div id="dropfile" style="margin:auto; border: 3px dashed #BBBBBB; line-height:50px; text-align: center; background: rgb(43,43,43);">
-		<img src="{$mybb->settings[\'bburl\']}/images/imgur.png"/></div>
+		<div id="dropfile" style="margin:auto; border: 3px dashed #BBBBBB; line-height:50px; text-align: center; background: rgb(43,43,43);" title="Click or drag an image to upload and use in your post">
+      <img id="imgur-upload-image" src="{$mybb->settings[\'bburl\']}/images/imgur.png"/>
+      <img id="imgur-upload-loading" src="{$mybb->settings[\'bburl\']}/images/imgur-loading.gif" style="display: none;max-height:50px;">
+    </div>
 <script>
 function imgurload() {
 	$(document).on("dragenter", "#dropfile", function() {
@@ -206,7 +208,8 @@ function upload(files) {
 	var myInsert = "";
 	var dsize = \\\'{$mybb->settings[\\\'imgur_display\\\']}\\\';
 	var dlink = {$mybb->settings[\\\'imgur_link\\\']};
-	$("#dropfile").css("background-image", "url({$mybb->settings[\\\'bburl\\\']}/images/loader.gif)");
+	$("#imgur-upload-image").css("display", "none");
+	$("#imgur-upload-loading").css("display", "initial");
 	$.each(files, function(i, file) {
 		if (!file || !file.type.match(/image.*/)) return;
 		var fd = new FormData();
@@ -240,12 +243,14 @@ function upload(files) {
 					$("#message, #signature").focus();
 					$("#message, #signature").replaceSelectedText(code);
 				}
+        
+        $("#imgur-upload-image").css("display", "initial");
+        $("#imgur-upload-loading").css("display", "none");
+        $("#dropfile").css("border", "3px dashed #BBBBBB");
 			}
 		});
 		fd = null;
 	});
-	$("#dropfile").css("background-image", "url({$mybb->settings[\\\'bburl\\\']}/images/imgur.png)")
-	$("#dropfile").css("border", "3px dashed #BBBBBB");
 }
 $(function() {
 	imgurload();
