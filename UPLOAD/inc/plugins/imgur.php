@@ -160,7 +160,8 @@ function imgur_activate() {
     $imgur_template[] = array(
         'title' => CN_ABPIMGUR . '_button',
         'template' => '<div style="margin:auto; width: 170px; margin-top: 20px;">
-		<div id="dropfile" style="width:150px;height:50px;margin:auto; border: 3px dashed #BBBBBB; line-height:50px; text-align: center; background:url({$mybb->settings[\\\'bburl\\\']}/images/imgur.png) center no-repeat;"></div>
+		<div id="dropfile" style="margin:auto; border: 3px dashed #BBBBBB; line-height:50px; text-align: center; background: rgb(43,43,43);">
+		<img src="{$mybb->settings[\'bburl\']}/images/imgur.png"/></div>
 <script>
 function imgurload() {
 	$(document).on("dragenter", "#dropfile", function() {
