@@ -155,7 +155,7 @@ function imgur_is_installed() {
 function imgur_activate() {
     global $db, $lang;
 
-    $button_template = file_get_contents(MYBB_ROOT . "inc/plugins/imgur/imgur_button.html");
+    $button_template = $db->escape_string(file_get_contents(MYBB_ROOT . "inc/plugins/imgur/imgur_button.html"));
     
     $imgur_template = array();
     $imgur_template[] = array(
