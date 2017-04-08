@@ -80,7 +80,7 @@ $(document).ready(function(){
 				processData: false,
 				contentType: false,
 				success:function(data) {
-					var link = data.data.link;
+					var link = data.data.link.replace("http:", "");
 					var code = "";
 					if (dsize!="r") {
 						pos = link.lastIndexOf(".");
