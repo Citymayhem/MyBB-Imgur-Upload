@@ -266,7 +266,7 @@ function imgur_upload(){
     ImgurResponse::InternalServerErrorResponse();
   }
 
-  $url = str_replace("http:", "", $jsonResponse['data']['link']);
+  $url = str_replace("http:", "https:", $jsonResponse['data']['link']);
 
   $response = new stdClass();
   $response->url = $url;
