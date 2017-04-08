@@ -1,4 +1,6 @@
-﻿# INFORMATION
+﻿**WARNING: THIS CONTAINS MY CLIENT ID FOR IMGUR. DO NOT MAKE PUBLIC**
+
+# INFORMATION
 
 imgur plugin (2.2) for MyBB 1.8
 Created by: CrazyCat
