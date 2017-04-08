@@ -1,6 +1,7 @@
 <div style="margin:auto; width: 170px; margin-top: 20px;">
   <div class="thead"><span class="smalltext"><strong>{$lang->imgur_button_title}</strong></span></div>
   <div id="imgur-upload-area" style="border: 2px dashed #BBBBBB;text-align:center">
+    <div id="imgur-upload-error" class="alert-danger" style="padding: 5px;display:none;">{$lang->imgur_error_general}</div>
     <div id="imgur-upload-file-options" style="margin: 5px">
       <input id="imgur-upload-button" class="button" value="{$lang->imgur_button_file_browse}" type="submit">
       <input id="imgur-upload-file-selector" accept="image/*" style="display:none" type="file">
@@ -79,38 +80,39 @@ $(document).ready(function(){
         dataType: "json",
         processData: false,
         contentType: false,
-        success:function(data) {
-          var link = data.url;
-          
-          var code = "";
-          if (dsize!="r") {
-            // Apparently appending a l or s to the image Id allows you to get a small or large version of it
-            pos = link.lastIndexOf(".");
-            if (dlink==1) {
-              code = "[url=" + link + "][img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img][/url]";
-            } else {
-              code = "[img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img]";
-            }
-          } else {
-            code = "[img]" + link + "[/img]";
-          }
-          if (MyBBEditor) {
-            MyBBEditor.insert(code);
-          } else {
-            $("#message, #signature").focus();
-            $("#message, #signature").replaceSelectedText(code);
-          }
+      })
+      .done(function(data) {
+        var link = data.url;
 
-          $("#imgur-upload-file-options").css("display", "block");
-          $("#imgur-upload-loading").css("display", "none");
-          $("#imgur-upload-area").css("border", "3px dashed #BBBBBB");
-        },
-        fail: function() {
-          /* TODO: Handle errors */
-          $("#imgur-upload-file-options").css("display", "block");
-          $("#imgur-upload-loading").css("display", "none");
-          $("#imgur-upload-area").css("border", "3px dashed #BBBBBB");
+        var code = "";
+        if (dsize!="r") {
+          // Apparently appending a l or s to the image Id allows you to get a small or large version of it
+          pos = link.lastIndexOf(".");
+          if (dlink==1) {
+            code = "[url=" + link + "][img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img][/url]";
+          } else {
+            code = "[img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img]";
+          }
+        } else {
+          code = "[img]" + link + "[/img]";
         }
+        if (MyBBEditor) {
+          MyBBEditor.insert(code);
+        } else {
+          $("#message, #signature").focus();
+          $("#message, #signature").replaceSelectedText(code);
+        }
+
+        $("#imgur-upload-error").css("display", "none");
+        $("#imgur-upload-file-options").css("display", "block");
+        $("#imgur-upload-loading").css("display", "none");
+        $("#imgur-upload-area").css("border", "3px dashed #BBBBBB");
+      })
+      .fail(function() {
+        $("#imgur-upload-error").css("display", "block");
+        $("#imgur-upload-file-options").css("display", "block");
+        $("#imgur-upload-loading").css("display", "none");
+        $("#imgur-upload-area").css("border", "3px dashed #BBBBBB");
       });
     });
   }
