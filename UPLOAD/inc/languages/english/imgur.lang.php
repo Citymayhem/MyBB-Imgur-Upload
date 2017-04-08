@@ -4,6 +4,6 @@
  * and add it in the post
  */
  
-$l['imgur_open'] = "New Imgur Pic";
-$l['imgur_ptitle'] = "Upload to Imgur";
-$l['imgur_select'] = "Select file...";
+$l['imgur_button_title'] = "Image Upload";
+$l['imgur_button_file_browse'] = "Browse";
+$l['imgur_button_drag_image_hint'] = "or drag an image here";
