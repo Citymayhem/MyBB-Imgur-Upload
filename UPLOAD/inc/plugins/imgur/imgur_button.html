@@ -27,21 +27,21 @@ $(document).ready(function(){
   });
   
   $(document).on("dragenter", "#imgur-upload-area", function() {
-        $(this).css("border", "2px dashed red");
+        EnableDragableAreaHoverOutline();
         return false;
   });
    
   $(document).on("dragover", "#imgur-upload-area", function(e){
         e.preventDefault();
         e.stopPropagation();
-        $(this).css("border", "2px dashed red");
+        EnableDragableAreaHoverOutline();
         return false;
   });
    
   $(document).on("dragleave", "#imgur-upload-area", function(e) {
         e.preventDefault();
         e.stopPropagation();
-        $(this).css("border", "2px dashed #BBBBBB");
+        EnableDragableAreaOutline();
         return false;
   });
   $(document).on("drop", "#imgur-upload-area", function(e) {
@@ -55,10 +55,18 @@ $(document).ready(function(){
        }
     }
     else {
-       $(this).css("border", "2px dashed #BBBBBB");
+       EnableDragableAreaHoverOutline();
     }
     return false;
   });
+  
+  function EnableDragableAreaOutline(){
+    $("#imgur-upload-area").css("border", "2px dashed #BBBBBB");
+  }
+  
+  function EnableDragableAreaHoverOutline(){
+    $("#imgur-upload-area").css("border", "2px dashed red");
+  }
 
   function upload(files) {
     var myInsert = "";
@@ -106,13 +114,13 @@ $(document).ready(function(){
         $("#imgur-upload-error").css("display", "none");
         $("#imgur-upload-file-options").css("display", "block");
         $("#imgur-upload-loading").css("display", "none");
-        $("#imgur-upload-area").css("border", "3px dashed #BBBBBB");
+        EnableDragableAreaHoverOutline();
       })
       .fail(function() {
         $("#imgur-upload-error").css("display", "block");
         $("#imgur-upload-file-options").css("display", "block");
         $("#imgur-upload-loading").css("display", "none");
-        $("#imgur-upload-area").css("border", "3px dashed #BBBBBB");
+        EnableDragableAreaHoverOutline();
       });
     });
   }
