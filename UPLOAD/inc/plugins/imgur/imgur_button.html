@@ -93,7 +93,7 @@ $(document).ready(function(){
 						code = "[img]" + link + "[/img]";
 					}
 					if (MyBBEditor) {
-						MyBBEditor.insertText(code);
+						MyBBEditor.insert(code);
 					} else {
 						$("#message, #signature").focus();
 						$("#message, #signature").replaceSelectedText(code);
