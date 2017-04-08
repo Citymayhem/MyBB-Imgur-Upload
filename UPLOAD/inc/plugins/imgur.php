@@ -14,7 +14,6 @@ $plugins->add_hook('newreply_end', 'imgur_button');
 $plugins->add_hook('newthread_end', 'imgur_button');
 $plugins->add_hook('editpost_start', 'imgur_button');
 $plugins->add_hook('private_send_start', 'imgur_button');
-$plugins->add_hook('misc_start', 'imgur_popup');
 
 /**
  * Displayed informations
@@ -156,133 +155,16 @@ function imgur_is_installed() {
 function imgur_activate() {
     global $db, $lang;
 
+    $button_template = file_get_contents(MYBB_ROOT . "inc/plugins/imgur/imgur_button.html");
+    
     $imgur_template = array();
     $imgur_template[] = array(
         'title' => CN_ABPIMGUR . '_button',
-        'template' => '<div style="margin:auto; width: 170px; margin-top: 20px;">
-		<div id="dropfile" style="margin:auto; border: 3px dashed #BBBBBB; line-height:50px; text-align: center; background: rgb(43,43,43);" title="Click or drag an image to upload and use in your post">
-      <img id="imgur-upload-image" src="{$mybb->settings[\'bburl\']}/images/imgur.png"/>
-      <img id="imgur-upload-loading" src="{$mybb->settings[\'bburl\']}/images/imgur-loading.gif" style="display: none;max-height:50px;">
-    </div>
-<script>
-function imgurload() {
-	$(document).on("dragenter", "#dropfile", function() {
-				$(this).css("border", "3px dashed red");
-				return false;
-	});
-	 
-	$(document).on("dragover", "#dropfile", function(e){
-				e.preventDefault();
-				e.stopPropagation();
-				$(this).css("border", "3px dashed red");
-				return false;
-	});
-	 
-	$(document).on("dragleave", "#dropfile", function(e) {
-				e.preventDefault();
-				e.stopPropagation();
-				$(this).css("border", "3px dashed #BBBBBB");
-				return false;
-	});
-	$(document).on("drop", "#dropfile", function(e) {
-		if(e.originalEvent.dataTransfer){
-		   if(e.originalEvent.dataTransfer.files.length) {
-			   // Stop the propagation of the event
-			   e.preventDefault();
-			   e.stopPropagation();
-			   // Main function to upload
-			   upload(e.originalEvent.dataTransfer.files);
-		   }
-		}
-		else {
-		   $(this).css("border", "3px dashed #BBBBBB");
-		}
-		return false;
-	});
-	$("#dropfile").click(function() {
-		MyBB.popupWindow(\\\'/misc.php?action=imgur&popup=true&editor=MyBBEditor&modal=1\\\');
-	});
-}
-
-function upload(files) {
-	var myInsert = "";
-	var dsize = \\\'{$mybb->settings[\\\'imgur_display\\\']}\\\';
-	var dlink = {$mybb->settings[\\\'imgur_link\\\']};
-	$("#imgur-upload-image").css("display", "none");
-	$("#imgur-upload-loading").css("display", "initial");
-	$.each(files, function(i, file) {
-		if (!file || !file.type.match(/image.*/)) return;
-		var fd = new FormData();
-		fd.append("image", file);
-		$.ajax({
-			beforeSend:function (xhr) {
-				xhr.setRequestHeader("Authorization", "Client-ID {$mybb->settings[\\\'imgur_client_id\\\']}");
-			},
-			url:"https://api.imgur.com/3/image.json",
-			method:"POST",
-			data:fd,
-			dataType: "json",
-			processData: false,
-			contentType: false,
-			success:function(data) {
-				var link = data.data.link;
-				var code = "";
-				if (dsize!="r") {
-					pos = link.lastIndexOf(".");
-					if (dlink==1) {
-						code = "[url=" + link + "][img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img][/url]";
-					} else {
-						code = "[img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img]";
-					}
-				} else {
-					code = "[img]" + link + "[/img]";
-				}
-				if (MyBBEditor) {
-					MyBBEditor.insertText(code);
-				} else {
-					$("#message, #signature").focus();
-					$("#message, #signature").replaceSelectedText(code);
-				}
-        
-        $("#imgur-upload-image").css("display", "initial");
-        $("#imgur-upload-loading").css("display", "none");
-        $("#dropfile").css("border", "3px dashed #BBBBBB");
-			}
-		});
-		fd = null;
-	});
-}
-$(function() {
-	imgurload();
-});
-</script>
-</div>',
+        'template' => $button_template,
         'sid' => -1,
         'version' => 1.0,
         'dateline' => TIME_NOW
     );
-	
-	$imgur_template[] = array(
-		'title' => CN_ABPIMGUR.'_popup',
-		'template' => '<div class="modal" style="width:200px">
-	<div style="overflow-y: auto; max-height: 200px; background-color:rgb(43,43,43);padding:10px;text-align:center;" class="modal_{$pid}">
-		<img src="{$mybb->settings[\\\'bburl\\\']}/images/imgur.png" /><br />
-		<button onclick="$(\\\'#selector\\\').click()">{$lang->imgur_select}</button>
-		<input id="selector" style="visibility:hidden;position:absolute;top:0;" type="file" onchange="pupload(this.files)" accept="image/*">
-		<p id="uploading" style="display:none;"><img src="{$mybb->settings[\\\'bburl\\\']}/images/loader.gif" border="0" /></p>
-	</div>
-	<script type="text/javascript">
-	function pupload(files) {
-		upload(files);
-		$.modal.close();
-	}
-	
-	</script>
-</div>',
-		'sid' => -1,
-		'version' => 1.1,
-		'dateline' => TIME_NOW
-	);
 
     foreach ($imgur_template as $row) {
         $db->insert_query("templates", $row);
@@ -338,18 +220,4 @@ function imgur_button() {
     global $db, $mybb, $lang, $templates, $theme, $imgur_button;
     $lang->load(CN_ABPIMGUR);
     eval("\$imgur_button .= \"" . $templates->get('imgur_button') . "\";");
-}
-
-/**
- * Displays the popup
- */
-function imgur_popup()
-{
-	global $mybb, $db, $headerinclude, $lang, $templates;
-	if($mybb->input['action'] == "imgur")
-	{
-		$lang->load(CN_ABPIMGUR);
-		eval("\$imgur_popup = \"".$templates->get('imgur_popup', 1, 0)."\";");
-		output_page($imgur_popup);
-	}
 }

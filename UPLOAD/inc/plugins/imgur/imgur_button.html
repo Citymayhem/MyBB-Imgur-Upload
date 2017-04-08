@@ -1,0 +1,111 @@
+<div style="margin:auto; width: 170px; margin-top: 20px;">
+  <div class="thead"><span class="smalltext"><strong>Image Upload</strong></span></div>
+  <div id="imgur-upload-area" style="border: 2px dashed #BBBBBB;text-align:center">
+    <div id="imgur-upload-file-options" style="margin: 5px">
+      <input id="imgur-upload-button" class="button" value="Browse" type="submit">
+      <input id="imgur-upload-file-selector" accept="image/*" style="display:none" type="file">
+      <br>
+      <span>or drag an image here</span>
+    </div>
+    <div id="imgur-upload-loading" style="display: none;margin: 5px">
+      <img src="{$mybb->settings['bburl']}/images/spinner.gif">
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+	$(document).on("click", "#imgur-upload-button", function(e) {
+		e.preventDefault();
+		$("#imgur-upload-file-selector").trigger("click");
+	});
+	
+	$(document).on("change", "#imgur-upload-file-selector", function(e){
+		e.preventDefault();
+		upload(e.target.files);
+	});
+	
+	$(document).on("dragenter", "#imgur-upload-area", function() {
+				$(this).css("border", "2px dashed red");
+				return false;
+	});
+	 
+	$(document).on("dragover", "#imgur-upload-area", function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				$(this).css("border", "2px dashed red");
+				return false;
+	});
+	 
+	$(document).on("dragleave", "#imgur-upload-area", function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$(this).css("border", "2px dashed #BBBBBB");
+				return false;
+	});
+	$(document).on("drop", "#imgur-upload-area", function(e) {
+		if(e.originalEvent.dataTransfer){
+		   if(e.originalEvent.dataTransfer.files.length) {
+			   // Stop the propagation of the event
+			   e.preventDefault();
+			   e.stopPropagation();
+			   // Main function to upload
+			   upload(e.originalEvent.dataTransfer.files);
+		   }
+		}
+		else {
+		   $(this).css("border", "2px dashed #BBBBBB");
+		}
+		return false;
+	});
+
+	function upload(files) {
+		var myInsert = "";
+		var dsize = 'l';
+		var dlink = 1;
+		$("#imgur-upload-file-options").css("display", "none");
+		$("#imgur-upload-loading").css("display", "block");
+		$.each(files, function(i, file) {
+			if (!file || !file.type.match(/image.*/)) return;
+			var fd = new FormData();
+			fd.append("image", file);
+			$.ajax({
+				beforeSend:function (xhr) {
+					xhr.setRequestHeader("Authorization", "Client-ID c9c6c7c7ec2851c");
+				},
+				url:"https://api.imgur.com/3/image.json",
+				method:"POST",
+				data:fd,
+				dataType: "json",
+				processData: false,
+				contentType: false,
+				success:function(data) {
+					var link = data.data.link;
+					var code = "";
+					if (dsize!="r") {
+						pos = link.lastIndexOf(".");
+						if (dlink==1) {
+							code = "[url=" + link + "][img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img][/url]";
+						} else {
+							code = "[img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img]";
+						}
+					} else {
+						code = "[img]" + link + "[/img]";
+					}
+					if (MyBBEditor) {
+						MyBBEditor.insertText(code);
+					} else {
+						$("#message, #signature").focus();
+						$("#message, #signature").replaceSelectedText(code);
+					}
+
+					$("#imgur-upload-file-options").css("display", "block");
+					$("#imgur-upload-loading").css("display", "none");
+					$("#imgur-upload-area").css("border", "3px dashed #BBBBBB");
+				}
+			});
+			fd = null;
+		});
+	}
+});
+</script>
