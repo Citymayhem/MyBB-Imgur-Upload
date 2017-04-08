@@ -14,6 +14,7 @@ $plugins->add_hook('newreply_end', 'imgur_button');
 $plugins->add_hook('newthread_end', 'imgur_button');
 $plugins->add_hook('editpost_start', 'imgur_button');
 $plugins->add_hook('private_send_start', 'imgur_button');
+$plugins->add_hook("xmlhttp", "imgur_ajax");
 
 /**
  * Displayed informations
@@ -220,4 +221,78 @@ function imgur_button() {
     global $db, $mybb, $lang, $templates, $theme, $imgur_button;
     $lang->load(CN_ABPIMGUR);
     eval("\$imgur_button .= \"" . $templates->get('imgur_button') . "\";");
+}
+
+
+function imgur_ajax(){
+  global $mybb;
+  
+  if($mybb->input['action'] === 'imgur_upload')
+  {
+    imgur_upload();
+  }
+}
+
+
+function imgur_upload(){
+  global $_FILES, $mybb;
+
+  if(!isset($_FILES['image'])){
+    ImgurResponse::BadRequestResponse("Image not supplied");
+  }
+
+  $filename = $_FILES['image']['tmp_name'];
+  $handle = fopen($filename, "r");
+  $data = fread($handle, filesize($filename));
+  $pvars = array('image' => base64_encode($data));
+
+  $client_id = $mybb->settings['imgur_client_id'];
+  $timeout = 30;
+
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, 'https://api.imgur.com/3/image.json');
+  curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+  curl_setopt($curl, CURLOPT_HTTPHEADER, array('Authorization: Client-ID ' . $client_id));
+  curl_setopt($curl, CURLOPT_POST, 1);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, $pvars);
+
+  $imgurResponse = curl_exec($curl);
+  curl_close ($curl);
+
+  $jsonResponse = json_decode($imgurResponse,true);
+  if($jsonResponse['status'] !== 200){
+    error_log("Error uploading image to imgur: " . $imgurResponse);
+    ImgurResponse::InternalServerErrorResponse();
+  }
+
+  $url = str_replace("http:", "", $jsonResponse['data']['link']);
+
+  $response = new stdClass();
+  $response->url = $url;
+  ImgurResponse::OkResponseWithObject($response);
+}
+
+
+class ImgurResponse {
+  public static function OkResponseWithObject($responseObject){
+    http_response_code(200);
+    header('Content-Type: application/json');
+    echo json_encode($responseObject);
+    exit;
+  }
+
+  public static function BadRequestResponse($message){
+    http_response_code(400);
+    header('Content-Type: application/json');
+    $response = new StdClass();
+    $response->message = $message;
+    echo json_encode($response);
+    exit;
+  }
+
+  public static function InternalServerErrorResponse(){
+    http_response_code(500);
+    exit;
+  }
 }
