@@ -5,7 +5,7 @@
 * Removed popup window for file upload
 * Added error handling
 * Actually renders image in post rich-text edtior after upload instead of showing img tags
-* Removed French language (*Sorry. I don't have translations for the sentences I've added. [Here's](https://github.com/Citymayhem/MyBB-Imgur-Upload/tree/3f86b69999ee53de40ca39060fcc95471dbe1e24/UPLOAD/inc/languages/french) the commit where I removed the language.*)
+* Removed French language (*Sorry. I don't have translations for the sentences I've added. [Deleted French language files](https://github.com/Citymayhem/MyBB-Imgur-Upload/tree/3f86b69999ee53de40ca39060fcc95471dbe1e24/UPLOAD/inc/languages/french), [current English language files](https://github.com/Citymayhem/MyBB-Imgur-Upload/tree/master/UPLOAD/inc/languages/english)*)
 
 ---
 Original post: https://community.mybb.com/mods.php?action=view&pid=386
