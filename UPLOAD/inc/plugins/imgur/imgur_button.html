@@ -16,6 +16,20 @@
 
 <script>
 $(document).ready(function(){
+  var ImgurUploadConfig = {
+    RequestUrl: "{$mybb->settings['bburl']}/xmlhttp.php?action=imgur_upload",
+    DisplaySizeCode: "{$mybb->settings['imgur_display']}",
+    ShouldRenderImageLink: "{$mybb->settings['imgur_link']}" && "{$mybb->settings['imgur_link']}" == 1
+  };
+  
+  var ImageDisplaySizes = {
+    // Apparently imgur supports appending these codes to the image Id for a different size of the image
+    Original: 'r',
+    Small: 't',
+    Medium: 'm',
+    Large: 'l'
+  }
+
   $(document).on("click", "#imgur-upload-button", function(e) {
     e.preventDefault();
     $("#imgur-upload-file-selector").trigger("click");
@@ -69,10 +83,6 @@ $(document).ready(function(){
   }
 
   function upload(files) {
-    var myInsert = "";
-    var dsize = "{$mybb->settings['imgur_display']}";
-    var dlink = {$mybb->settings['imgur_link']};
-    
     $("#imgur-upload-file-options").css("display", "none");
     $("#imgur-upload-loading").css("display", "block");
     ShowDragAreaActivatedOutline();
@@ -84,7 +94,7 @@ $(document).ready(function(){
       imageFormData.append("image", file);
 
       $.ajax({
-        url: "{$mybb->settings['bburl']}/xmlhttp.php?action=imgur_upload",
+        url: ImgurUploadConfig.RequestUrl,
         method: "POST",
         data: imageFormData,
         dataType: "json",
@@ -92,25 +102,29 @@ $(document).ready(function(){
         contentType: false,
       })
       .done(function(data) {
-        var link = data.url;
-
-        var code = "";
-        if (dsize!="r") {
-          // Apparently appending a l or s to the image Id allows you to get a small or large version of it
-          pos = link.lastIndexOf(".");
-          if (dlink==1) {
-            code = "[url=" + link + "][img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img][/url]";
-          } else {
-            code = "[img]" + link.substring(0, pos) + dsize + link.substring(pos) + "[/img]";
-          }
-        } else {
-          code = "[img]" + link + "[/img]";
+        var rawImageUrl = data.url;
+        var resizedImageUrl = rawImageUrl;
+        
+        if (ImgurUploadConfig.DisplaySizeCode != ImageDisplaySizes.Original)
+        {
+          resizedImageUrl = rawImageUrl.replace(/(.*\/[A-Za-z0-9]+)(\.[A-Za-z]{3}.*)/, '$1' + ImgurUploadConfig.DisplaySizeCode + '$2');
         }
-        if (MyBBEditor) {
-          MyBBEditor.insert(code);
-        } else {
+        
+        var imageBBCode = "[img]" + resizedImageUrl + "[/img]";
+        
+        if (ImgurUploadConfig.ShouldRenderImageLink)
+        {
+          imageBBCode = "[url=" + rawImageUrl + "]" + imageBBCode + "[/url]";
+        }
+        
+        if (MyBBEditor)
+        {
+          MyBBEditor.insert(imageBBCode);
+        }
+        else
+        {
           $("#message, #signature").focus();
-          $("#message, #signature").replaceSelectedText(code);
+          $("#message, #signature").replaceSelectedText(imageBBCode);
         }
 
         $("#imgur-upload-error").css("display", "none");
