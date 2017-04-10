@@ -27,21 +27,21 @@ $(document).ready(function(){
   });
   
   $(document).on("dragenter", "#imgur-upload-area", function() {
-        EnableDragableAreaHoverOutline();
+        ShowDragAreaActivatedOutline();
         return false;
   });
    
   $(document).on("dragover", "#imgur-upload-area", function(e){
         e.preventDefault();
         e.stopPropagation();
-        EnableDragableAreaHoverOutline();
+        ShowDragAreaActivatedOutline();
         return false;
   });
    
   $(document).on("dragleave", "#imgur-upload-area", function(e) {
         e.preventDefault();
         e.stopPropagation();
-        EnableDragableAreaOutline();
+        ShowDragAreaOutline();
         return false;
   });
   $(document).on("drop", "#imgur-upload-area", function(e) {
@@ -55,16 +55,16 @@ $(document).ready(function(){
        }
     }
     else {
-       EnableDragableAreaHoverOutline();
+       ShowDragAreaActivatedOutline();
     }
     return false;
   });
   
-  function EnableDragableAreaOutline(){
+  function ShowDragAreaOutline(){
     $("#imgur-upload-area").css("border", "2px dashed #BBBBBB");
   }
   
-  function EnableDragableAreaHoverOutline(){
+  function ShowDragAreaActivatedOutline(){
     $("#imgur-upload-area").css("border", "2px dashed red");
   }
 
@@ -72,8 +72,10 @@ $(document).ready(function(){
     var myInsert = "";
     var dsize = "{$mybb->settings['imgur_display']}";
     var dlink = {$mybb->settings['imgur_link']};
+    
     $("#imgur-upload-file-options").css("display", "none");
     $("#imgur-upload-loading").css("display", "block");
+    ShowDragAreaActivatedOutline();
     
     $.each(files, function(i, file) {
       if (!file || !file.type.match(/image.*/)) return;
@@ -114,13 +116,13 @@ $(document).ready(function(){
         $("#imgur-upload-error").css("display", "none");
         $("#imgur-upload-file-options").css("display", "block");
         $("#imgur-upload-loading").css("display", "none");
-        EnableDragableAreaHoverOutline();
+        ShowDragAreaOutline();
       })
       .fail(function() {
         $("#imgur-upload-error").css("display", "block");
         $("#imgur-upload-file-options").css("display", "block");
         $("#imgur-upload-loading").css("display", "none");
-        EnableDragableAreaHoverOutline();
+        ShowDragAreaOutline();
       });
     });
   }
