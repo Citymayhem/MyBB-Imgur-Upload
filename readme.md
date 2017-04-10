@@ -1,4 +1,16 @@
-﻿# INFORMATION
+# Extensions
+* Improved styling to fit better with forum theme
+* Moved actual Imgur API call to serverside to protect the clientId
+* Made image URLs use HTTPS
+* Removed popup window for file upload
+* Added error handling
+* Actually renders image in post rich-text edtior after upload instead of showing img tags
+* Removed French language (*Sorry. I don't have translations for the sentences I've added. [Here's](https://github.com/Citymayhem/MyBB-Imgur-Upload/tree/3f86b69999ee53de40ca39060fcc95471dbe1e24/UPLOAD/inc/languages/french) the commit where I removed the language.*)
+
+---
+Original post: https://community.mybb.com/mods.php?action=view&pid=386
+
+# INFORMATION
 
 imgur plugin (2.2) for MyBB 1.8
 Created by: CrazyCat
